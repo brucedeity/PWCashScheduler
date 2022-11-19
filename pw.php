@@ -21,16 +21,50 @@ class PW
         $env = new Dotenv;
         $env->load(__DIR__.'/.env');
 
-        $this->con = DriverManager::getConnection(['dbname' => $_ENV['DB_NAME'],'user' => $_ENV['DB_USER'],'password' => $_ENV['DB_PASS'],'host' => $_ENV['DB_HOST'],'driver' => $_ENV['DB_DRIVER'],]);
+        $this->db = DriverManager::getConnection(['dbname' => $_ENV['DB_NAME'],'user' => $_ENV['DB_USER'],'password' => $_ENV['DB_PASS'],'host' => $_ENV['DB_HOST'],'driver' => $_ENV['DB_DRIVER'],]);
     }
 
     public function getUsers()
     {
-        return $this->con->query('SELECT * FROM users')->fetch();
+        $sql = "SELECT * FROM users";
+
+        $stmt = $this->db->query($sql);
+
+        $users = [];
+
+        while (($row = $stmt->fetchAssociative()) !== false) {
+            $users[] = $row;
+        }
+
+        return $users;
+    }
+
+    public function AddCash($ID, $cash)
+    {
+        $this->con->query('call usecash (?, ?, ? ,?, ?, ?, ?, @error)', [$ID, 1, 0, 1, 0, $cash * 100, 1]);
     }
 
     public function callApi($method, array $params = [])
     {
         return call_user_func_array([new API, $method], $params);
     }
+
+    public function checkAccounts()
+    {
+        $checked = [];
+        foreach($this->getUsers() as $account) {
+
+            $checkdRoles = [];
+
+            $roles = $this->callApi('getRoles', ['user' => $account['ID']]);
+
+            foreach($roles['roles'] as $role){
+                $fullRole = $this->callApi('getRole', ['role' => $role['id']]);
+
+                return $fullRole;
+            }
+        }
+    }
 }
+
+print_r(json_encode((new PW)->checkAccounts()));

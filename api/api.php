@@ -1,5 +1,5 @@
 <?php
-require 'config.php';
+require '../includes/configs.php';
 function config($data)
 {
     global $configs;

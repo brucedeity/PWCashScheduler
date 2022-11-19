@@ -18,13 +18,4 @@ class Scheduler
     {
         $this->pw = new PW;
     }
-
-    public function getEnv()
-    {
-        return $this->pw->getUsers();
-    }
 }
-
-print_r((new PW)->callApi('getRole', [
-    'role' => 1024
-]));
