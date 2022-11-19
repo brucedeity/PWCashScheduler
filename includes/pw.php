@@ -9,7 +9,8 @@
 
 require __DIR__.'/vendor/autoload.php';
 
-require 'api/api.php';
+require '../api/api.php';
+require '../includes/confHandler.php';
 
 use Symfony\Component\Dotenv\Dotenv;
 use Doctrine\DBAL\DriverManager;
@@ -58,10 +59,18 @@ class PW
 
             $roles = $this->callApi('getRoles', ['user' => $account['ID']]);
 
+            $confHandler = new Config;
+
             foreach($roles['roles'] as $role){
+
+                // Gets full role
                 $fullRole = $this->callApi('getRole', ['role' => $role['id']]);
 
-                return $fullRole;
+                // Checks if exists a reward to the given level2
+                if (!$confHandler->checkLevel2($role['base']['level2'])) continue;
+
+                // Stores the valid role
+                $checkedRoles[] = $fullRole;
             }
         }
     }

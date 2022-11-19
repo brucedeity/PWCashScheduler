@@ -5,9 +5,9 @@ function config($data)
     global $configs;
     $serverInf = [
         'pw-api' => [
-            'local' => $configs['server_ip'],
-            'ports' => ['gamedbd' => $configs['gamedbd'], 'gdeliveryd' => $configs['gdeliveryd'], 'gacd' => $configs['gacd'], 'client' => $configs['client']],
-            'game_version' => $configs['versao'],
+            'local' => $configs['api']['host'],
+            'ports' => ['gamedbd' => $configs['api']['gamedbd'], 'gdeliveryd' => $configs['api']['gdeliveryd'], 'gacd' => $configs['api']['gacd'], 'client' => $configs['api']['client']],
+            'game_version' => $configs['api']['version'],
             'maxbuffer' => 65536,
             's_block' => false,
             's_readtype' => 3,

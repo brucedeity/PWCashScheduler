@@ -7,7 +7,7 @@
  */
 
 require __DIR__.'/vendor/autoload.php';
-require 'pw.php';
+require 'includes/pw.php';
 
 use Symfony\Component\Dotenv\Dotenv;
 use Doctrine\DBAL\DriverManager;
