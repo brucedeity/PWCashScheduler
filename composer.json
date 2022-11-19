@@ -1,7 +1,8 @@
 {
     "require": {
         "workerman/crontab": "^1.0",
-        "huludini/pw-api": "^1.1"
+        "doctrine/dbal": "^3.5",
+        "symfony/dotenv": "^6.1"
     },
     "config": {
         "allow-plugins": {
