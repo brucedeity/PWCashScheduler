@@ -24,6 +24,7 @@ class PW
         $env = new Dotenv;
         $env->load(__DIR__.'/.env');
 
+        // Starts the connection with the .env values
         $this->db = DriverManager::getConnection(['dbname' => $_ENV['DB_NAME'],'user' => $_ENV['DB_USER'],'password' => $_ENV['DB_PASS'],'host' => $_ENV['DB_HOST'],'driver' => $_ENV['DB_DRIVER'],]);
 
         $this->level2 = [];
@@ -162,6 +163,7 @@ class PW
             32 => 'Demoníaco (Evil 3)'
         ];
 
+        // Returns the given level2 name or Unknow if it does not exist
         return array_key_exists($level2, $names) ? $names[$level2] : 'Unknow';
     }
 
@@ -193,12 +195,11 @@ class PW
     {
         $checkedAccounts = $this->checkAccounts();
 
-
         $maxRewards = [];
         foreach ($checkedAccounts as $key => $value) {
             $parsedRole = $this->getRoleWithHighestLevel2($checkedAccounts[$key]);
 
-            if (!is_array($parsedRole)) continue;
+            // if (!is_array($parsedRole)) continue; maybe this is not needed
 
             array_push($maxRewards, $parsedRole);
         }
@@ -206,6 +207,10 @@ class PW
         return $maxRewards;
     }
 
+    /**
+     * Send cash to all valid users
+     * @return string
+     */
     public function sendCashToUsers()
     {
         $logger = new Logger('logs/logs.txt');
