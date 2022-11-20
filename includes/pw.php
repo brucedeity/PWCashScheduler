@@ -26,6 +26,8 @@ class PW
         $env->load(__DIR__.'/.env');
 
         $this->db = DriverManager::getConnection(['dbname' => $_ENV['DB_NAME'],'user' => $_ENV['DB_USER'],'password' => $_ENV['DB_PASS'],'host' => $_ENV['DB_HOST'],'driver' => $_ENV['DB_DRIVER'],]);
+    
+        $this->level2 = [];
     }
 
     /**
@@ -54,7 +56,16 @@ class PW
      */
     public function AddCash($ID, $cash)
     {
-        $this->con->query('call usecash (?, ?, ? ,?, ?, ?, ?, @error)', [$ID, 1, 0, 1, 0, $cash * 100, 1]);
+        $sql = 'call usecash (?, ?, ? ,?, ?, ?, ?, @error)';
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $ID);
+        $stmt->bindValue(2, 1);
+        $stmt->bindValue(3, 0);
+        $stmt->bindValue(4, 1);
+        $stmt->bindValue(5, 0);
+        $stmt->bindValue(6, $cash * 100);
+        $stmt->bindValue(7, 1);
+        $stmt->executeQuery();
     }
 
     /**
@@ -128,6 +139,52 @@ class PW
     }
 
     /**
+     * Gets level 2 name
+     * @param level2 int
+     * @return string
+     */
+    public function getLevel2Name(int $level2) : string
+    {
+        $names = [
+            0 => 'Leal (Inicial)',
+            1 => 'Astuto (9)',
+            2 => 'Harmonioso (19)',
+            3 => 'Lúcido (29)',
+            4 => 'Enigmático (39)',
+            5 => 'Ameaçador (49)',
+            6 => 'Sinistro (59)',
+            7 => 'Nirvana (69)',
+            8 => 'Mahayana (79)',
+            20 => 'Nobre (God 1)',
+            21 => 'Iluminado (God 2)',
+            22 => 'Imortal (God 3)',
+            30 => 'Diabólico (Evil 1)',
+            31 => 'Infernal (Evil 2)',
+            32 => 'Demoníaco (Evil 3)'
+        ];
+
+        return array_key_exists($level2, $names) ? $names[$level2] : 'Unknow';
+    }
+
+    public function getRoleWithHighestLevel2(array $roles)
+    {
+        $parsedRole = [];
+
+        // Level2 0 is a thing.. so start value must be -1
+        $highestLevel2 = -1;
+
+        foreach ($roles as $role) {
+            if ($role['level2'] > $highestLevel2) {
+                $highestLevel2 = $role['level2'];
+
+                $parsedRole = $role;
+            }
+        }
+
+        return $parsedRole;
+    }
+
+    /**
      * Loops through all valid accounts (that has at least one character and it's level2 e rewardable) and stores
      * it in an array caled maxRewards in this way: ['1024' => [1, 2, 3, 4, 5]]
      * 
@@ -137,23 +194,14 @@ class PW
     {
         $checkedAccounts = $this->checkAccounts();
 
+        
         $maxRewards = [];
         foreach ($checkedAccounts as $key => $value) {
-            $rewards = [];
+            $parsedRole = $this->getRoleWithHighestLevel2($checkedAccounts[$key]);
+            
+            if (!is_array($parsedRole)) continue;
 
-            $accountID = NULL;
-
-            foreach ($checkedAccounts[$key] as $checkedRole) {
-                $accountID = $checkedRole['accountID'];
-                $cash = $checkedRole['reward']['cash'];
-                
-                $rewards[] = $cash;
-            }
-
-            // Pushs to maxRewards the given pattern in this method description
-            array_push($maxRewards, [
-                $accountID => max($rewards)
-            ]);
+            array_push($maxRewards, $parsedRole);
         }
 
         return $maxRewards;
@@ -161,15 +209,13 @@ class PW
 
     public function sendCash()
     {
-        $maxRewards = $this->getMaxRewards();
+        $logger = new Logger('../logs/logs.txt');
 
-        $logger = new Logger('logs/logs.txt');
+        foreach ($this->getMaxRewards() as $account) {
 
-        foreach ($maxRewards as $account) {
+            $this->AddCash($account['accountID'], $account['reward']['cash']);
 
-            $logger->putLog( 'A conta '.key($account).' recebeu : '. $account[key($account)]. ' em cash!');
-
-            echo key($account).' account must receive: '. $account[key($account)]. ' cash! <br/>';
+            $logger->putLog('A conta '.$account['accountID'].' recebeu '.$account['reward']['cash']. ' em cash, porque o personagem '. $account['roleName']. ' tem o cultivo: '.$this->getLevel2Name($account['level2']));
         }
     }
 }
