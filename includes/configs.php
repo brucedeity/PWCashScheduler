@@ -14,9 +14,9 @@ $configs = [
         'gacd'       =>  29300,
         'client'     =>  29000,
     ],
-    'scheduler' => [
-        ''
-    ],
+    'cron' => '1 * * * * *', // Cron time to send cash. This may be usefull: https://crontab.guru/
+
+    
     'rewards' => [ // Cultivation id ['cash' => quantity]
         0 => ['cash' => 1], // Spiritual Initiate 0
         1 => ['cash' => 2], // Aware of Principle 9

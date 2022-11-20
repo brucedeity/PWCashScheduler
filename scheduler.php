@@ -1,21 +1,30 @@
 <?php
 /**
  * @author brucedeity
- * @create date 2022-11-19 15:20:03
- * @modify date 2022-11-19 15:20:03
- * @desc handles schedule
+ * @create date 2022-11-20 16:30:35
+ * @modify date 2022-11-20 16:30:35
  */
 
-require __DIR__.'/vendor/autoload.php';
+use Workerman\Worker;
+use Workerman\Crontab\Crontab;
+
+require __DIR__ . '/vendor/autoload.php';
+
 require 'includes/pw.php';
+require 'includes/configs.php';
 
-use Symfony\Component\Dotenv\Dotenv;
-use Doctrine\DBAL\DriverManager;
 
-class Scheduler
-{
-    public function __construct()
-    {
-        $this->pw = new PW;
-    }
-}
+$pw = new PW;
+$worker = new Worker();
+
+$worker->onWorkerStart = function () {
+    global $configs;
+
+    // Execute the function in the first second of every minute.
+    new Crontab($configs['cron'], function(){
+       echo $pw->sendCashToUsers();
+    });
+};
+
+
+Worker::runAll();

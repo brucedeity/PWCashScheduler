@@ -2,7 +2,7 @@
 /**
  * Handles pw database
  * Has functions to handle all pw database and tables
- * 
+ *
  * @author brucedeity
  * @since 2022-11-19 14:34:44
  */
@@ -26,7 +26,7 @@ class PW
         $env->load(__DIR__.'/.env');
 
         $this->db = DriverManager::getConnection(['dbname' => $_ENV['DB_NAME'],'user' => $_ENV['DB_USER'],'password' => $_ENV['DB_PASS'],'host' => $_ENV['DB_HOST'],'driver' => $_ENV['DB_DRIVER'],]);
-    
+
         $this->level2 = [];
     }
 
@@ -72,7 +72,7 @@ class PW
      * Call a given method of the API
      * @param method
      * @param params array
-     * 
+     *
      * @return method
      */
     public function callApi($method, array $params = [])
@@ -187,18 +187,18 @@ class PW
     /**
      * Loops through all valid accounts (that has at least one character and it's level2 e rewardable) and stores
      * it in an array caled maxRewards in this way: ['1024' => [1, 2, 3, 4, 5]]
-     * 
+     *
      * @return array
      */
     public function getMaxRewards()
     {
         $checkedAccounts = $this->checkAccounts();
 
-        
+
         $maxRewards = [];
         foreach ($checkedAccounts as $key => $value) {
             $parsedRole = $this->getRoleWithHighestLevel2($checkedAccounts[$key]);
-            
+
             if (!is_array($parsedRole)) continue;
 
             array_push($maxRewards, $parsedRole);
@@ -207,17 +207,22 @@ class PW
         return $maxRewards;
     }
 
-    public function sendCash()
+    public function sendCashToUsers()
     {
         $logger = new Logger('../logs/logs.txt');
 
+        $count = 0;
         foreach ($this->getMaxRewards() as $account) {
 
             $this->AddCash($account['accountID'], $account['reward']['cash']);
 
             $logger->putLog('A conta '.$account['accountID'].' recebeu '.$account['reward']['cash']. ' em cash, porque o personagem '. $account['roleName']. ' tem o cultivo: '.$this->getLevel2Name($account['level2']));
+        
+            $count += 1;
         }
+
+        return 'PWCashScheduler just sent cash to '.$count.' users';
     }
 }
 
-print_r(json_encode((new PW)->sendCash()));
+// print_r(json_encode((new PW)->sendCash()));
