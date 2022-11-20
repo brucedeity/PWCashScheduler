@@ -11,7 +11,6 @@ require __DIR__.'/../vendor/autoload.php';
 
 require __DIR__.'/../api/api.php';
 
-require 'configs.php';
 require 'confHandler.php';
 require 'logger.php';
 
@@ -209,7 +208,7 @@ class PW
 
     public function sendCashToUsers()
     {
-        $logger = new Logger('../logs/logs.txt');
+        $logger = new Logger('logs/logs.txt');
 
         $count = 0;
         foreach ($this->getMaxRewards() as $account) {
@@ -224,5 +223,3 @@ class PW
         return 'PWCashScheduler just sent cash to '.$count.' users';
     }
 }
-
-// print_r(json_encode((new PW)->sendCash()));

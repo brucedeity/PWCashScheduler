@@ -11,18 +11,15 @@ use Workerman\Crontab\Crontab;
 require __DIR__ . '/vendor/autoload.php';
 
 require 'includes/pw.php';
-require 'includes/configs.php';
 
-
-$pw = new PW;
 $worker = new Worker();
 
 $worker->onWorkerStart = function () {
     global $configs;
 
-    // Execute the function in the first second of every minute.
+    // Execute this function accordin to cron configs key.
     new Crontab($configs['cron'], function(){
-       echo $pw->sendCashToUsers();
+       echo (new PW)->sendCashToUsers()."\n";
     });
 };
 

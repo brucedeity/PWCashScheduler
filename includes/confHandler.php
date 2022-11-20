@@ -6,7 +6,7 @@
  * @desc Handles configs.php file
  */
 
-require_once(realpath(dirname(__FILE__) . '/configs.php'));
+require 'configs.php';
 
 class Config
 {
