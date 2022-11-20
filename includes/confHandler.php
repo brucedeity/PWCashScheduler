@@ -35,8 +35,23 @@ class Config
     {
         $rewards = $this->getRewards();
 
-        if (!array_key_exists($level2, $rewards)) return;
+        if (!array_key_exists($level2, $rewards)) return false;
 
-        if ($rewards[$level2]['cash'] < 0) return;
+        if ($rewards[$level2]['cash'] < 0) return false;
+
+        return true;
+    }
+
+    /**
+     * Gets cash for the given level2
+     * @param level2
+     * @return array
+     */
+    public function getLevel2Reward(int $level2)
+    {
+        // Returns the method if level2 is invalid
+        if (!$this->checkLevel2($level2)) return;
+
+        return $this->getRewards()[$level2];
     }
 }
