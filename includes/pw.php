@@ -7,10 +7,12 @@
  * @since 2022-11-19 14:34:44
  */
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
-require '../api/api.php';
-require '../includes/confHandler.php';
+require __DIR__.'/../api/api.php';
+
+require 'configs.php';
+require 'confHandler.php';
 
 use Symfony\Component\Dotenv\Dotenv;
 use Doctrine\DBAL\DriverManager;
@@ -70,8 +72,15 @@ class PW
                 if (!$confHandler->checkLevel2($role['base']['level2'])) continue;
 
                 // Stores the valid role
-                $checkedRoles[] = $fullRole;
+                $checkedRoles[] = [
+                    'roleId' => $fullRole['base']['id'],
+                    'level2' => $fullRole['status']['level2']
+                ];
             }
+
+            $checked[] = $checkdRoles;
+
+            return $checked;
         }
     }
 }

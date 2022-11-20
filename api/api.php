@@ -1,5 +1,8 @@
 <?php
-require '../includes/configs.php';
+
+require(realpath(dirname(__FILE__) . '/../includes/configs.php'));
+
+// require('../includes/configs.php');
 function config($data)
 {
     global $configs;
