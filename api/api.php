@@ -2,7 +2,6 @@
 
 require(realpath(dirname(__FILE__) . '/../includes/configs.php'));
 
-// require('../includes/configs.php');
 function config($data)
 {
     global $configs;
@@ -447,13 +446,13 @@ class API
         $this->online = $this->serverOnline();
         // Check if there is a protocol file for the set game version
         $version = setting('server_version', '101');
-        if (file_exists(__DIR__ . '/protocolos/pw_v' . $version . '.php')) {
-            require __DIR__ . '/protocolos/pw_v' . $version . '.php';
+        if (file_exists(__DIR__ . '/pw_v' . $version . '.php')) {
+            require __DIR__ . '/pw_v' . $version . '.php';
             if (isset($pwapi)) {
                 $this->data = $pwapi;
             }
         } else {
-            throw new Exception('N�o ha um arquivo de protocolo para a vers�o ' . $version . '');
+            throw new Exception('No config file was found to the given version: ' . $version . '');
         }
     }
     /**
