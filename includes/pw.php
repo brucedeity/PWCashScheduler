@@ -105,15 +105,16 @@ class PW
                 // Skip this iteration because fullRole is not valid
                 if (!is_array($fullRole)) continue;
 
-                // Extra checks, may be not needed so commenting it
-                // if (!array_key_exists('base', $fullRole)) continue;
+                if (!array_key_exists('base', $fullRole)) continue;
 
-                // if (!array_key_exists('status', $fullRole)) continue;
+                if (!array_key_exists('status', $fullRole)) continue;
 
                 $level2 = $fullRole['status']['level2'];
+                
+                $reward = $confHandler->getLevel2Reward($level2);
 
                 // Checks if exists a reward to the given level2
-                if (!$confHandler->checkLevel2($level2)) continue;
+                if (is_null($reward)) continue;
 
                 // Stores all usefull data into roleData array
                 $roleData = [
@@ -121,7 +122,7 @@ class PW
                     'roleId' => $fullRole['base']['id'],
                     'roleName' => $fullRole['base']['name'],
                     'level2' => $level2,
-                    'reward' => $confHandler->getLevel2Reward($level2)
+                    'reward' => $reward
                 ];
 
                 // Pushs roleData to checkedRoles array
@@ -132,8 +133,8 @@ class PW
             array_push($checked, $checkdRoles);
         }
 
-        // Returns an array of all accounts ID and it's valid roles
-        return $checked;
+        // Returns a filtered array of all accounts and it's valids roles
+        return array_filter($checked);
     }
 
     /**
@@ -206,6 +207,24 @@ class PW
     }
 
     /**
+     * Last check to garantee parsed role is valid
+     * @param role array
+     * @return boolean
+     */
+    public function validateParsedRole($role)
+    {
+        $logger = new Logger('logs/error.txt');
+
+        if (!isset($role['accountID']) OR !isset($role['reward'])) {
+            $logger->putLog('A invalid data for parsed role was given. JSON: '. json_encode($role));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Send cash to all valid users
      * @return string
      */
@@ -214,11 +233,13 @@ class PW
         $logger = new Logger('logs/logs.txt');
 
         $count = 0;
-        foreach ($this->getMaxRewards() as $account) {
+        foreach ($this->getMaxRewards() as $parsedRole) {
 
-            $this->AddCash($account['accountID'], $account['reward']['cash']);
+            if (!$this->validateParsedRole($parsedRole)) continue;
 
-            $logger->putLog('A conta '.$account['accountID'].' recebeu '.$account['reward']['cash']. ' em cash, porque o personagem '. $account['roleName']. ' tem o cultivo: '.$this->getLevel2Name($account['level2']));
+            $this->AddCash($parsedRole['accountID'], $parsedRole['reward']['cash']);
+
+            $logger->putLog('A conta '.$parsedRole['accountID'].' recebeu '.$parsedRole['reward']['cash']. ' em cash, porque o personagem '. $parsedRole['roleName']. ' tem o cultivo: '.$this->getLevel2Name($parsedRole['level2']));
         
             $count += 1;
         }

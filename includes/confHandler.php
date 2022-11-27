@@ -2,7 +2,7 @@
 /**
  * @author brucedeity
  * @create date 2022-11-19 18:15:40
- * @modify date 2022-11-19 18:15:40
+ * @modify date 2022-11-27 13:48:40
  * @desc Handles configs.php file
  */
 
@@ -21,9 +21,9 @@ class Config
      * Gets all rewards
      * @return array
      */
-    private function getRewards()
+    private function getRewards(int $key = NULL)
     {
-        return $this->configs['rewards'];
+        return is_null($key) ? $this->configs['rewards'] : $this->configs['rewards'][$key];
     }
 
     /**
@@ -33,11 +33,11 @@ class Config
      */
     public function checkLevel2(int $level2)
     {
-        $rewards = $this->getRewards();
+        $rewards = $this->getRewards($level2);
 
-        if (!array_key_exists($level2, $rewards)) return false;
+        if (!$rewards) return false;
 
-        if ($rewards[$level2]['cash'] < 0) return false;
+        if ($rewards['cash'] <= 0) return false;
 
         return true;
     }
@@ -52,6 +52,6 @@ class Config
         // Returns the method if level2 is invalid
         if (!$this->checkLevel2($level2)) return;
 
-        return $this->getRewards()[$level2];
+        return $this->getRewards($level2);
     }
 }
